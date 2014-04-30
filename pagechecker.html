@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>PageChecker test</title>
+   <script type="text/javascript" charset="utf-8" src="pagechecker.js"></script>
+   <script type="text/javascript" charset="utf-8" src="javascripts/jquery-1.11.0.min.js"></script>
+   <script type="text/javascript" charset="utf-8" src="javascripts/jquery.md5.js"></script>
+</head>
+<body>
+   <h1>PageChecker test</h1>
+   <p>
+      Try to change some content on this page with Chrome Inspector or Firebug.
+   </p>
+   <script type="text/javascript" charset="utf-8">
+   $(document).ready(function() {
+      new Bluefish.PageChecker(1500).change(function() {
+         alert("Page content changed!");
+      }).check(function() {
+         console.log("Checking page on "+Date());
+      });
+   });
+   </script>
+</body>
+</html>
