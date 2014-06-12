@@ -12,10 +12,24 @@
    <p>
       Try to change some content on this page with Chrome Inspector or Firebug.
    </p>
+   <p>
+      Try to change some content on this <strong>paragraph</strong> with Chrome Inspector or Firebug.
+   </p>
    <script type="text/javascript" charset="utf-8">
    $(document).ready(function() {
+      // check full page
       new Bluefish.PageChecker(1500).change(function() {
          alert("Page content changed!");
+      }).check(function() {
+         console.log("Checking page on "+Date());
+      });
+
+      // check specified selector
+      pchecker = function() {
+         return $("p").filter(function(idx, obj) { return $(obj).text().match(/paragraph/); });
+      };
+      new Bluefish.PageChecker(1500, pchecker).change(function() {
+         alert("Paragraph content changed!");
       }).check(function() {
          console.log("Checking page on "+Date());
       });

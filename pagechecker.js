@@ -4,13 +4,15 @@ var Bluefish = Bluefish || {};
  * Create a new object to monitor the current page
  *
  * interval - How many miliseconds will be used to check the page
+ * selector - Element to check. Defaults to the HTML element if null
  * debug - Enable or disable debug mode
  */
-Bluefish.PageChecker = function(interval, debug) {
+Bluefish.PageChecker = function(interval, selector, debug) {
    this.interval = interval;  // interval, miliseconds
    this.checksum = null;      // current checksum
    this.changed  = null;      // callback to call if the page is changed
    this.checking = null;      // callback to call when checking for changes
+   this.selector = selector;  // elemento to check
    this.debug    = debug;     // debug mode
 
    // sets the callback function on the specified interval
@@ -21,7 +23,7 @@ Bluefish.PageChecker = function(interval, debug) {
 
    // here we go
    this.msg("Calculating first checksum");
-   this.checksum = this.getPageMd5();
+   this.checksum = this.getMD5();
    this.msg("First checksum calculated as "+this.checksum);
 }
 
@@ -39,19 +41,27 @@ Bluefish.PageChecker.prototype.msg = function(msg) {
 /**
  * Remove <style></style> content
  */
-Bluefish.PageChecker.prototype.style = function(html) {
-   return html.replace(/<style.*<\/style>/gi, "");
+Bluefish.PageChecker.prototype.style = function(content) {
+   return content.replace(/<style.*<\/style>/gi, "");
 }
 
 /**
  * Get the current page MD5 checksum
  */
-Bluefish.PageChecker.prototype.getPageMd5 = function() {
-   var html = $("html").html();
-   for(var i=0, t=this.filters.length; i<t; i++) {
-      html = this.filters[i](html);
+Bluefish.PageChecker.prototype.getMD5 = function() {
+   var text = "";
+   var selected = null;
+
+   if (this.selector) {
+      selected = this.selector.call ? this.selector() : this.selector;
+      text = selected.map(function(idx, obj) { return $(obj).text().trim(); }).toArray().join();
+   } else {
+      text = $("html").html();
    }
-   return $.md5(html);
+   for(var i=0, t=this.filters.length; i<t; i++) {
+      text = this.filters[i](text);
+   }
+   return $.md5(text);
 }
 
 /**
@@ -99,7 +109,7 @@ Bluefish.PageChecker.prototype.checkPage = function() {
    }
 
    // get the current checksum
-   var cursum = this.getPageMd5();
+   var cursum = this.getMD5();
 
    // if changed ...
    if (this.checksum != cursum) {
